@@ -4,6 +4,7 @@ import {
   Injectable,
   NestInterceptor,
   Logger,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 
@@ -19,7 +20,7 @@ export class UserLoadInterceptor implements NestInterceptor {
 
     if (firebaseUser?.uid) {
       this.logger.log(`Loading user from Firebase UID: ${firebaseUser.uid}`);
-
+      console.log('firebaseUser', firebaseUser);
       // DB User를 별도 필드에 저장 (기존 req.user는 유지)
       const dbUser =
         await this.authService.findOrCreateFromFirebase(firebaseUser);

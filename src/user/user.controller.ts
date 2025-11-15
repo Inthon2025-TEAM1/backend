@@ -6,6 +6,9 @@ import {
   UseGuards,
   Query,
   UseInterceptors,
+  Delete,
+  Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserRole, User } from './user.entity';
@@ -59,6 +62,14 @@ export class UserController {
   @Get('children')
   async getChildren(@CurrentUserId() userId: number) {
     return this.userService.getChildren(userId);
+  }
+
+  @Delete('children/:childId')
+  async removeChild(
+    @CurrentUserId() userId: number,
+    @Param('childId', ParseIntPipe) childId: number,
+  ) {
+    return this.userService.removeChild(userId, childId);
   }
 
   @Get('reward-candy-history')

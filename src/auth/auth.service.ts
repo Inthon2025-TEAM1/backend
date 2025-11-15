@@ -35,6 +35,10 @@ export class AuthService {
     let user = await this.findByFirebaseUid(firebaseUser.uid);
 
     if (!user) {
+      // If firebaseUser.name is missing, use email as a fallback for the name field.
+      if (!firebaseUser.name) {
+        firebaseUser.name = firebaseUser.email ?? '사용자';
+      }
       user = await this.createFromFirebase(firebaseUser);
     }
 
