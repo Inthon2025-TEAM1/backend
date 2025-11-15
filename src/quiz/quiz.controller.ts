@@ -104,12 +104,11 @@ export class QuizController {
     @Body('quizId') quizId: number,
     @Body('answer') answer: string,
   ) {
-    console.log('[Quiz Submit] User ID:', userId, '| Quiz ID:', quizId, '| Answer:', answer);
     return this.quizService.submitAnswer(userId, quizId, answer);
   }
 
   @Get('attempts')
   async getAttempts(@CurrentUserId() userId: number) {
-    return this.quizService.getAttempts(userId);
+    return this.quizService.getAttemptsById(userId);
   }
 }

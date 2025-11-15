@@ -138,7 +138,7 @@ export class QuizService {
   }
 
   // 풀이 내역 조회
-  async getAttempts(childId: number): Promise<QuizAttempt[]> {
+  async getAttemptsById(childId: number): Promise<QuizAttempt[]> {
     return this.attemptRepository.find({
       where: { childId },
       relations: ['question'],
@@ -146,10 +146,17 @@ export class QuizService {
     });
   }
 
+<<<<<<< HEAD
   // 문제 ID로 문제 조회
   async getQuestionById(quizId: number): Promise<QuizQuestion | null> {
     return this.quizRepository.findOne({
       where: { id: quizId },
+=======
+  async getAllAttempts(): Promise<QuizAttempt[]> {
+    return this.attemptRepository.find({
+      relations: ['quiz'],
+      order: { createdAt: 'DESC' },
+>>>>>>> 59ac74ad2776da5b386f01497ee692abfce515dc
     });
   }
 }

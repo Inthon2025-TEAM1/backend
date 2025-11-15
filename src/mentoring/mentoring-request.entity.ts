@@ -10,6 +10,8 @@ export enum MentoringStatus {
   PENDING = 'pending',
   MATCHED = 'matched',
   REJECTED = 'rejected',
+  CANCELLED = 'cancelled',
+  COMPLETED = 'completed',
 }
 
 @Entity('mentoring_requests')
@@ -21,13 +23,22 @@ export class MentoringRequest {
   parentId: number;
 
   @Column()
+  childId: number; // 자녀 ID
+
+  @Column()
   title: string; // 멘토링 신청 제목
 
-  @Column({ type: 'text' })
-  childInfo: string; // 자녀 정보
+  @Column()
+  childName: string; // 자녀 이름
+
+  @Column()
+  childAge: string; // 자녀 학년 (중1, 중2, 중3)
 
   @Column({ type: 'text' })
   requirement: string; // 어떤 부분이 필요한지
+
+  @Column({ nullable: true })
+  mentorName?: string; // 매칭된 멘토 이름
 
   @Column({
     type: 'enum',
