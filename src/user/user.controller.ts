@@ -27,4 +27,9 @@ export class UserController {
   async getChildren(@Req() req) {
     return this.userService.getChildren(req.user.id);
   }
+
+  @Get('reward-candy-history')
+  async getRewardCandyHistory(@Req() req) {
+    return this.userService.getRewardCandyHistory(req.user.id);
+  }
 }

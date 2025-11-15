@@ -44,13 +44,6 @@ export class MentoringRequest {
   })
   status: MentoringStatus; // 기본 pending
 
-  @Column({ nullable: true })
-  mentorId: number; // 매칭된 멘토 ID
-
-  @ManyToOne(() => Mentor, { nullable: true })
-  @JoinColumn({ name: 'mentorId' })
-  mentor: Mentor;
-
   @CreateDateColumn()
   createdAt: Date;
 

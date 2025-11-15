@@ -26,6 +26,9 @@ export class Mentor {
   @Column({ nullable: true })
   email: string; // 이메일
 
+  @Column({ nullable: true })
+  mentoringRequestId?: number;
+
   @Column({
     type: 'enum',
     enum: MentorStatus,

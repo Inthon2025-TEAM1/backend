@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { QuizQuestion } from './quiz-question.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
 import { UserService } from '../user/user.service';
@@ -67,4 +67,6 @@ export class QuizService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  
 }
