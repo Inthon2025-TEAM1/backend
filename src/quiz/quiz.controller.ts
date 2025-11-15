@@ -20,6 +20,17 @@ export class QuizController {
     return this.quizService.getQuestionsByChapter(chapterId);
   }
 
+  @Get('unsolved')
+  async getUnsolvedQuestions(
+    @Req() req,
+    @Query('chapterId') chapterId: number,
+  ) {
+    return this.quizService.getUnsolvedQuestionsByChapter(
+      req.user.id,
+      chapterId,
+    );
+  }
+
   @Post('submit')
   async submitAnswer(
     @Req() req,
