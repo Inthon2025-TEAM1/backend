@@ -32,9 +32,9 @@ export class User {
   @Column({
     type: 'enum',
     enum: UserRole,
-    nullable: false,
+    nullable: true,
   })
-  role: UserRole;
+  role: UserRole | null;
 
   @Column({ type: 'int', default: 0 })
   candy: number;
