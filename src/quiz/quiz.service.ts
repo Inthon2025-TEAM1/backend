@@ -1,10 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
-import { QuizQuestion } from './quiz-question.entity';
-import { QuizAttempt } from './quiz-attempt.entity';
-import { UserService } from '../user/user.service';
 import { getRandomCandy } from 'src/util/candy.util';
+import { Repository } from 'typeorm';
+import { UserService } from '../user/user.service';
+import { QuizAttempt } from './quiz-attempt.entity';
+import { QuizQuestion, QuizType } from './quiz-question.entity';
+import { QuizQuestionDto } from './quiz.dto';
 
 @Injectable()
 export class QuizService {
@@ -15,6 +16,23 @@ export class QuizService {
     private attemptRepository: Repository<QuizAttempt>,
     private userService: UserService,
   ) {}
+
+  async createQuiz(quizList: QuizQuestionDto[]) {
+    // entity로 create 하고 create Many
+    const quizEntities = quizList.map((quizDto) =>
+      this.quizRepository.create({
+        grade: quizDto.grade,
+        type: quizDto.type as QuizType,
+        chapterId: quizDto.chapterId,
+        question: quizDto.question,
+        choices: quizDto.choices,
+        answer: quizDto.answer,
+        explain: quizDto.explain,
+      }),
+    );
+    await this.quizRepository.save(quizEntities);
+    return quizEntities;
+  }
 
   // 챕터별 문제 가져오기
   async getQuestionsByChapter(chapterId: number): Promise<QuizQuestion[]> {
@@ -67,6 +85,4 @@ export class QuizService {
       order: { createdAt: 'DESC' },
     });
   }
-
-  
 }
