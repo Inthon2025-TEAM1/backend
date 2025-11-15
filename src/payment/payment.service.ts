@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Payment } from './payment.entity';
+import { Payment, PaymentStatus } from './payment.entity';
 import { CreatePaymentDto } from './payment.dto';
 import { User, UserRole } from 'src/user/user.entity';
+import { isPast } from 'date-fns';
 
 @Injectable()
 export class PaymentService {
@@ -31,5 +36,45 @@ export class PaymentService {
       endAt: payment.endAt,
     });
     return this.paymentRepository.save(newPayment);
+  }
+  async approvePayment(paymentId: number) {
+    const payment = await this.paymentRepository.findOne({
+      where: { id: paymentId },
+    });
+
+    if (!payment) {
+      throw new NotFoundException('Payment request not found.');
+    }
+    if (payment.status !== PaymentStatus.PENDING) {
+      throw new BadRequestException(
+        'Payment request is not in PENDING status.',
+      );
+    }
+    const children = await this.userRepository.find({
+      where: { parentId: payment.parentId, role: UserRole.CHILD },
+    });
+
+    const updatedChildren = children.map((child) => {
+      let renewalStart = child.expiresAt;
+      if (!renewalStart || isPast(renewalStart)) {
+        renewalStart = payment.startAt;
+      }
+
+      child.expiresAt = payment.endAt;
+      return child;
+    });
+
+    await this.userRepository.save(updatedChildren);
+
+    payment.status = PaymentStatus.PAID;
+    payment.paidAt = new Date();
+
+    await this.paymentRepository.save(payment);
+
+    return {
+      paymentId: payment.id,
+      status: PaymentStatus.PAID,
+      childrenUpdated: updatedChildren.length,
+    };
   }
 }
