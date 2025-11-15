@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { Not, In, Repository } from 'typeorm';
 import { QuizQuestion } from './quiz-question.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
+import { Chapter } from './chapter.entity';
 import { UserService } from '../user/user.service';
 import { getRandomCandy } from 'src/util/candy.util';
 
@@ -13,13 +14,47 @@ export class QuizService {
     private quizRepository: Repository<QuizQuestion>,
     @InjectRepository(QuizAttempt)
     private attemptRepository: Repository<QuizAttempt>,
+    @InjectRepository(Chapter)
+    private chapterRepository: Repository<Chapter>,
     private userService: UserService,
   ) {}
+
+  async findChaptersByGrade(
+    gradeLevel: number,
+  ): Promise<{ id: number; chapterName: string; chapterOrder: number }[]> {
+    return this.chapterRepository.find({
+      select: ['id', 'chapterName', 'chapterOrder'],
+      where: { gradeLevel: gradeLevel },
+      order: { chapterOrder: 'ASC' },
+    });
+  }
 
   // 챕터별 문제 가져오기
   async getQuestionsByChapter(chapterId: number): Promise<QuizQuestion[]> {
     return this.quizRepository.find({
       where: { chapterId },
+      order: { id: 'ASC' },
+    });
+  }
+
+  //챕터별 풀이 안한 문제 가져오기
+  async getUnsolvedQuestionsByChapter(
+    childId: number,
+    chapterId: number,
+  ): Promise<QuizQuestion[]> {
+    // 이미 푼 문제 ID 목록 조회
+    const attempts = await this.attemptRepository.find({
+      where: { childId: childId },
+      select: ['quizId'],
+    });
+    const attemptedQuizIds = attempts.map((a) => a.quizId);
+
+    // 푼 문제를 제외하고 챕터별 문제 조회
+    return this.quizRepository.find({
+      where: {
+        chapterId: chapterId,
+        id: attemptedQuizIds.length > 0 ? Not(In(attemptedQuizIds)) : undefined,
+      },
       order: { id: 'ASC' },
     });
   }
@@ -67,6 +102,4 @@ export class QuizService {
       order: { createdAt: 'DESC' },
     });
   }
-
-  
 }
