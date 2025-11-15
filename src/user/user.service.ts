@@ -155,6 +155,7 @@ export class UserService {
 
     const attempts = await this.attemptRepository.find({
       where: whereCondition,
+      relations: ['quiz'],
       order: { createdAt: 'DESC' },
     });
 
@@ -164,8 +165,33 @@ export class UserService {
       totalCandyEarned: attempts.reduce((sum, a) => sum + a.rewardCandy, 0),
     };
 
+    // Map attempts to include question title from quiz relation
+    const mappedAttempts = attempts.map((attempt) => {
+      let questionTitle = '제목 없음';
+      if (attempt.quiz?.question) {
+        const question = attempt.quiz.question as any;
+        questionTitle = question.text || question.title || JSON.stringify(question);
+      }
+
+      return {
+        id: attempt.id,
+        quizId: attempt.quizId,
+        questionTitle,
+        selectedChoice: attempt.selectedChoice,
+        isCorrect: attempt.isCorrect,
+        rewardCandy: attempt.rewardCandy,
+        createdAt: attempt.createdAt,
+      };
+    });
+
+    // 보상을 받은 내역만 필터링 (rewardCandy > 0)
+    const rewardAttempts = mappedAttempts.filter(
+      (attempt) => attempt.rewardCandy > 0,
+    );
+
     return {
-      attempts,
+      attempts: mappedAttempts, // 모든 풀이 내역
+      rewardAttempts, // 보상을 받은 내역만
       stats,
     };
   }
