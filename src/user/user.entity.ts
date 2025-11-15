@@ -10,6 +10,7 @@ export enum UserRole {
   PARENT = 'parent',
   CHILD = 'child',
   MENTOR = 'mentor',
+  ADMIN = 'admin',
 }
 
 @Entity('users')
