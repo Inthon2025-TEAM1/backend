@@ -24,7 +24,7 @@ export class QuizAttempt {
   isCorrect: boolean;
 
   @Column('int')
-  rewardCandyNumber: number;
+  rewardCandy: number;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -7,28 +7,34 @@ import {
 } from 'typeorm';
 
 export enum MentorStatus {
-  PENDING = 'pending',
+  AVAILABLE = 'available',
   MATCHED = 'matched',
-  REJECTED = 'rejected',
+  UNAVAILABLE = 'unavailable',
 }
 
 @Entity('mentors')
 export class Mentor {
-  @PrimaryGeneratedColumn({ type: 'bigint' })
+  @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  name: string;
+  name: string; // 멘토 이름
+
+  @Column()
+  mobileNumber: string; // 전화번호
 
   @Column({ nullable: true })
-  mobileNumber: string;
+  email: string; // 이메일
 
   @Column({
     type: 'enum',
     enum: MentorStatus,
-    default: MentorStatus.PENDING,
+    default: MentorStatus.AVAILABLE,
   })
-  status: MentorStatus;
+  status: MentorStatus; // 기본 available
+
+  @Column({ type: 'text', nullable: true })
+  bio: string; // 멘토 소개
 
   @CreateDateColumn()
   createdAt: Date;
