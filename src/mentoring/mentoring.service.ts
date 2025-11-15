@@ -77,6 +77,39 @@ export class MentoringService {
     return this.mentoringRequestRepository.save(request);
   }
 
+  async findPendingRequestsForAdmin(): Promise<MentoringRequest[]> {
+    return this.mentoringRequestRepository.find({
+      where: { status: MentoringStatus.PENDING },
+      order: { createdAt: 'ASC' },
+    });
+  }
+  async adminUpdateStatus(
+    id: number,
+    status: MentoringStatus,
+  ): Promise<MentoringRequest> {
+    const request = await this.mentoringRequestRepository.findOne({
+      where: { id },
+    });
+
+    if (!request) {
+      throw new NotFoundException('멘토링 신청을 찾을 수 없습니다.');
+    }
+
+    if (request.status !== MentoringStatus.PENDING) {
+      throw new BadRequestException(
+        'PENDING 상태의 신청만 승인/거절할 수 있습니다.',
+      );
+    }
+
+    request.status = status;
+
+    if (status === MentoringStatus.MATCHED) {
+      request.mentorName = request.mentorName || 'Admin Matched';
+    }
+
+    return this.mentoringRequestRepository.save(request);
+  }
+
   async createMentorMockup() {
     // Clear existing data
     await this.mentoringRequestRepository.clear();

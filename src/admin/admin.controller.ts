@@ -12,6 +12,7 @@ import { QuizQuestionListDto } from 'src/quiz/quiz.dto';
 import { QuizService } from 'src/quiz/quiz.service';
 import { UserService } from 'src/user/user.service';
 import { PaymentService } from 'src/payment/payment.service';
+import { UpdateMentoringStatusDto } from 'src/mentoring/mentoring.dto';
 
 @Controller('/api/admin')
 export class AdminController {
@@ -50,5 +51,18 @@ export class AdminController {
   @Patch(':id/approve')
   async approvePayment(@Param('id', ParseIntPipe) paymentId: number) {
     return this.paymentService.approvePayment(paymentId);
+  }
+
+  @Get('pending')
+  async getPendingRequests() {
+    return this.mentoringService.findPendingRequestsForAdmin();
+  }
+
+  @Patch(':id/status')
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateDto: UpdateMentoringStatusDto,
+  ) {
+    return this.mentoringService.adminUpdateStatus(id, updateDto.status);
   }
 }
