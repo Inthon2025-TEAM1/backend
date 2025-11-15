@@ -32,6 +32,22 @@ export class UserController {
     return { role: user.role };
   }
 
+  @Get('me')
+  async getCurrentUser(@CurrentDbUser() user: User) {
+    console.log('========================================');
+    console.log('Current User ID:', user.id);
+    console.log('Email:', user.email);
+    console.log('Role:', user.role);
+    console.log('Candy:', user.candy);
+    console.log('========================================');
+    return {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      candy: user.candy,
+    };
+  }
+
   @Post('children')
   async addChild(
     @CurrentUserId() userId: number,
@@ -62,6 +78,11 @@ export class UserController {
     @Body('itemName') itemName: string,
   ) {
     return this.userService.spendCandy(userId, amount, itemName);
+  }
+
+  @Get('purchase-history')
+  async getPurchaseHistory(@CurrentUserId() userId: number) {
+    return this.userService.getPurchaseHistory(userId);
   }
 
   @Get('rewards')
