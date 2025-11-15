@@ -8,7 +8,7 @@ import { Repository } from 'typeorm';
 import { Payment, PaymentStatus } from './payment.entity';
 import { CreatePaymentDto } from './payment.dto';
 import { User, UserRole } from 'src/user/user.entity';
-import { isPast } from 'date-fns';
+import { isPast, addMonths } from 'date-fns';
 
 @Injectable()
 export class PaymentService {
@@ -57,10 +57,10 @@ export class PaymentService {
     const updatedChildren = children.map((child) => {
       let renewalStart = child.expiresAt;
       if (!renewalStart || isPast(renewalStart)) {
-        renewalStart = payment.startAt;
+        renewalStart = new Date();
       }
 
-      child.expiresAt = payment.endAt;
+      child.expiresAt = addMonths(renewalStart, 1);
       return child;
     });
 
@@ -68,6 +68,8 @@ export class PaymentService {
 
     payment.status = PaymentStatus.PAID;
     payment.paidAt = new Date();
+    payment.startAt = new Date();
+    payment.endAt = addMonths(new Date(), 1);
 
     await this.paymentRepository.save(payment);
 
