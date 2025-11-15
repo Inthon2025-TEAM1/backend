@@ -55,7 +55,7 @@ export class AuthService {
     }
 
     if (user.role !== null) {
-      throw new ConflictException('Role already set.');
+      console.warn('Role already set.');
     }
 
     const name = firebaseUser.name;
