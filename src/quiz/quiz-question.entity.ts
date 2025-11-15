@@ -28,7 +28,7 @@ export class QuizQuestion {
   @Column('bigint')
   chapterId: number;
 
-  @Column('jsonb')
+  @Column('json')
   question: object;
 
   @Column({ type: 'simple-array', nullable: true })
