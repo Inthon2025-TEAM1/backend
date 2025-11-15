@@ -6,22 +6,41 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum UserRole {
+  PARENT = 'parent',
+  CHILD = 'child',
+  MENTOR = 'mentor',
+}
+
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number; // 내부 PK
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
 
   @Column({ unique: true })
-  firebaseUid: string; // Firebase UID 매핑
+  firebaseUid: string;
 
   @Column({ nullable: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Column()
   name: string;
 
   @Column({ nullable: true })
   profileImage: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+    nullable: false,
+  })
+  role: UserRole;
+
+  @Column({ type: 'int', default: 0 })
+  candy: number;
+
+  @Column({ type: 'bigint', nullable: true })
+  parentId: number;
 
   @CreateDateColumn()
   createdAt: Date;
