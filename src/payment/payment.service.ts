@@ -79,4 +79,14 @@ export class PaymentService {
       childrenUpdated: updatedChildren.length,
     };
   }
+  async findPendingPaymentsForAdmin() {
+    try {
+      return await this.paymentRepository.find({
+        where: { status: PaymentStatus.PENDING },
+      });
+    } catch (error) {
+      console.error('Error fetching pending payments for admin:', error);
+      throw new NotFoundException('결제 승인 대기 목록을 찾을 수 없습니다.');
+    }
+  }
 }
