@@ -69,7 +69,7 @@ export class AiService {
    */
   async prepareAnalysisData(childId: number): Promise<WeaknessAnalysisRequest> {
     // 1. 모든 풀이 내역 가져오기
-    const attempts = await this.quizService.getAttempts(childId);
+    const attempts = await this.quizService.getAttemptsById(childId);
 
     if (attempts.length === 0) {
       throw new Error('풀이 내역이 없습니다.');
