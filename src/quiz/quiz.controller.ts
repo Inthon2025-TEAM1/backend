@@ -6,6 +6,7 @@ import {
   Query,
   UseGuards,
   Req,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { FirebaseAuthGuard } from '../auth/firebase/firebase-auth.guard';
@@ -29,6 +30,13 @@ export class QuizController {
       req.user.id,
       chapterId,
     );
+  }
+
+  @Get('chapters')
+  async getChaptersByGrade(
+    @Query('gradeLevel', ParseIntPipe) gradeLevel: number,
+  ) {
+    return this.quizService.findChaptersByGrade(gradeLevel);
   }
 
   @Post('submit')

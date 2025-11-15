@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, In, Repository } from 'typeorm';
 import { QuizQuestion } from './quiz-question.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
+import { Chapter } from './chapter.entity';
 import { UserService } from '../user/user.service';
 import { getRandomCandy } from 'src/util/candy.util';
 
@@ -13,8 +14,20 @@ export class QuizService {
     private quizRepository: Repository<QuizQuestion>,
     @InjectRepository(QuizAttempt)
     private attemptRepository: Repository<QuizAttempt>,
+    @InjectRepository(Chapter)
+    private chapterRepository: Repository<Chapter>,
     private userService: UserService,
   ) {}
+
+  async findChaptersByGrade(
+    gradeLevel: number,
+  ): Promise<{ id: number; chapterName: string; chapterOrder: number }[]> {
+    return this.chapterRepository.find({
+      select: ['id', 'chapterName', 'chapterOrder'],
+      where: { gradeLevel: gradeLevel },
+      order: { chapterOrder: 'ASC' },
+    });
+  }
 
   // 챕터별 문제 가져오기
   async getQuestionsByChapter(chapterId: number): Promise<QuizQuestion[]> {
