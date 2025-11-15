@@ -42,6 +42,9 @@ export class User {
   @Column({ type: 'bigint', nullable: true })
   parentId: number;
 
+  @Column({ type: 'timestamp', nullable: true })
+  expiresAt: Date; // 구독 만료일
+
   @CreateDateColumn()
   createdAt: Date;
 

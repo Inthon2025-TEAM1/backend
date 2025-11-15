@@ -7,6 +7,7 @@ import { QuizAttempt } from './quiz-attempt.entity';
 import { Chapter } from './chapter.entity';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { AuthModule } from '../auth/auth.module';
     UserModule,
     AuthModule,
   ],
-  providers: [QuizService],
+  providers: [QuizService, SubscriptionGuard],
   controllers: [QuizController],
   exports: [QuizService],
 })

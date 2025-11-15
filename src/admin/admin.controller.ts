@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  ParseIntPipe,
+  Get,
+  Post,
+  Patch,
+} from '@nestjs/common';
 import { MentoringService } from 'src/mentoring/mentoring.service';
 import { QuizQuestionListDto } from 'src/quiz/quiz.dto';
 import { QuizService } from 'src/quiz/quiz.service';
 import { UserService } from 'src/user/user.service';
+import { PaymentService } from 'src/payment/payment.service';
 
 @Controller('/api/admin')
 export class AdminController {
@@ -10,6 +19,7 @@ export class AdminController {
     private readonly quizService: QuizService,
     private readonly userService: UserService,
     private readonly mentoringService: MentoringService,
+    private readonly paymentService: PaymentService,
   ) {}
 
   @Post('create-quiz')
@@ -35,5 +45,10 @@ export class AdminController {
   @Post('create-mentor-mockup')
   async createMentorRequestAndMentor() {
     return this.mentoringService.createMentorMockup();
+  }
+
+  @Patch(':id/approve')
+  async approvePayment(@Param('id', ParseIntPipe) paymentId: number) {
+    return this.paymentService.approvePayment(paymentId);
   }
 }
