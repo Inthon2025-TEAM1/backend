@@ -5,14 +5,18 @@ import {
   Body,
   Query,
   UseGuards,
-  Req,
+  UseInterceptors,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { FirebaseAuthGuard } from '../auth/firebase/firebase-auth.guard';
+import { UserLoadInterceptor } from '../auth/interceptor/auth.interceptor';
+import { CurrentUserId } from '../auth/decorators/current-user.decorator';
 
 @Controller('quiz')
 @UseGuards(FirebaseAuthGuard)
+@UseInterceptors(UserLoadInterceptor)
 export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
@@ -34,9 +38,8 @@ export class QuizController {
       };
     }
 
-    const questions = await this.quizService.getQuestionsByChapter(
-      chapterIdNum,
-    );
+    const questions =
+      await this.quizService.getQuestionsByChapter(chapterIdNum);
 
     // 프론트엔드가 기대하는 형식으로 변환
     return {
@@ -44,7 +47,10 @@ export class QuizController {
       title: subject || '퀴즈',
       questions: questions.map((q) => ({
         id: q.id.toString(),
-        question: typeof q.question === 'string' ? q.question : JSON.stringify(q.question),
+        question:
+          typeof q.question === 'string'
+            ? q.question
+            : JSON.stringify(q.question),
         answer: q.answer,
         explanation: q.explain,
         difficulty: this.mapDifficulty(q.grade),
@@ -80,15 +86,15 @@ export class QuizController {
 
   @Post('submit')
   async submitAnswer(
-    @Req() req,
+    @CurrentUserId() userId: number,
     @Body('quizId') quizId: number,
     @Body('answer') answer: string,
   ) {
-    return this.quizService.submitAnswer(req.user.id, quizId, answer);
+    return this.quizService.submitAnswer(userId, quizId, answer);
   }
 
   @Get('attempts')
-  async getAttempts(@Req() req) {
-    return this.quizService.getAttempts(req.user.id);
+  async getAttempts(@CurrentUserId() userId: number) {
+    return this.quizService.getAttempts(userId);
   }
 }

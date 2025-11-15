@@ -1,12 +1,10 @@
-import { PaymentStatus } from './payment.entity';
 import {
-  IsEnum,
+  IsDateString,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
-  IsDateString,
-  IsNumber,
 } from 'class-validator';
 
 export class CreatePaymentDto {

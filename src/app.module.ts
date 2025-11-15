@@ -9,8 +9,17 @@ import { MentoringModule } from './mentoring/mentoring.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
-import { QuizAttempt } from './quiz/quiz-attempt.entity';
+import { RewardModule } from './reward/reward.module';
+import { CandyTransaction } from './candy-transaction/candy-transaction.entity';
+import { CandyTransactionModule } from './candy-transaction/candy-transaction.module';
+import { AdminModule } from './admin/admin.module';
 import { QuizQuestion } from './quiz/quiz-question.entity';
+import { QuizAttempt } from './quiz/quiz-attempt.entity';
+import { Chapter } from './quiz/chapter.entity';
+import { Payment } from './payment/payment.entity';
+import { MentoringRequest } from './mentoring/mentoring-request.entity';
+import { Mentor } from './mentoring/mentor.entity';
+import { Reward } from './reward/reward.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,11 +37,26 @@ import { QuizQuestion } from './quiz/quiz-question.entity';
       username: process.env.MYSQL_USERNAME,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      entities: [User, QuizAttempt, QuizQuestion],
+      entities: [
+        User,
+        CandyTransaction,
+        QuizQuestion,
+        QuizAttempt,
+        Chapter,
+        Payment,
+        MentoringRequest,
+        Mentor,
+        Reward,
+      ],
       synchronize: true, // 개발환경에서는 true, 운영은 false
       charset: 'utf8mb4', // 이모지 지원
     }),
-    TypeOrmModule.forFeature([User]),
+    RewardModule,
+    CandyTransactionModule,
+    AdminModule,
+    QuizModule,
+    PaymentModule,
+    MentoringModule,
   ],
   controllers: [AppController],
   providers: [AppService],

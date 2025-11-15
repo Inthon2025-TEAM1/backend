@@ -1,8 +1,19 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuizAttempt } from 'src/quiz/quiz-attempt.entity';
-import { Not, Repository } from 'typeorm';
+import {
+  Not,
+  Repository,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 import { User, UserRole } from './user.entity';
+import { CandyTransaction } from '../candy-transaction/candy-transaction.entity';
 
 @Injectable()
 export class UserService {
@@ -11,6 +22,8 @@ export class UserService {
     private userRepository: Repository<User>,
     @InjectRepository(QuizAttempt)
     private attemptRepository: Repository<QuizAttempt>,
+    @InjectRepository(CandyTransaction)
+    private candyTransactionRepository: Repository<CandyTransaction>,
   ) {}
 
   // Role 설정
@@ -41,7 +54,7 @@ export class UserService {
   }
 
   // Candy 업데이트
-  async updateCandy(userId: number, amount: number): Promise<number> {
+  async incrementCandy(userId: number, amount: number): Promise<number> {
     try {
       await this.userRepository.increment(
         { id: userId }, // where 조건
@@ -50,7 +63,7 @@ export class UserService {
       );
       return amount;
     } catch (error) {
-      throw new InternalServerErrorException('Candy 업데이트 실패');
+      throw new InternalServerErrorException('Candy 업데이트 실패', error);
     }
   }
 
@@ -70,5 +83,66 @@ export class UserService {
       rewardCandy: attempt.rewardCandy,
       createdAt: attempt.createdAt,
     }));
+  }
+
+  async spendCandy(
+    userId: number,
+    amount: number,
+    itemName: string,
+  ): Promise<{ success: boolean; remainingCandy: number }> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (user.candy < amount) {
+      throw new BadRequestException('Insufficient candy balance');
+    }
+
+    user.candy -= amount;
+    await this.userRepository.save(user);
+
+    await this.candyTransactionRepository.save({
+      userId,
+      type: 'spend',
+      amount,
+      itemName,
+    });
+
+    return {
+      success: true,
+      remainingCandy: user.candy,
+    };
+  }
+
+  async getChildRewards(childId: number, month?: string) {
+    let whereCondition: any = { childId };
+
+    if (month) {
+      const startDate = new Date(month + '-01');
+      const endDate = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth() + 1,
+        1,
+      );
+      whereCondition.createdAt = Between(startDate, endDate);
+    }
+
+    const attempts = await this.attemptRepository.find({
+      where: whereCondition,
+      order: { createdAt: 'DESC' },
+    });
+
+    const stats = {
+      totalAttempts: attempts.length,
+      correctCount: attempts.filter((a) => a.isCorrect).length,
+      totalCandyEarned: attempts.reduce((sum, a) => sum + a.rewardCandy, 0),
+    };
+
+    return {
+      attempts,
+      stats,
+    };
   }
 }
