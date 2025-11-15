@@ -20,6 +20,7 @@ import { Payment } from './payment/payment.entity';
 import { MentoringRequest } from './mentoring/mentoring-request.entity';
 import { Mentor } from './mentoring/mentor.entity';
 import { Reward } from './reward/reward.entity';
+import { AiModule } from './ai/ai.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,9 +55,7 @@ import { Reward } from './reward/reward.entity';
     RewardModule,
     CandyTransactionModule,
     AdminModule,
-    QuizModule,
-    PaymentModule,
-    MentoringModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

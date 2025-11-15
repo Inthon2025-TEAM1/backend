@@ -141,8 +141,15 @@ export class QuizService {
   async getAttemptsById(childId: number): Promise<QuizAttempt[]> {
     return this.attemptRepository.find({
       where: { childId },
-      relations: ['question'],
+      relations: ['quiz', 'quiz.chapter'],
       order: { createdAt: 'DESC' },
+    });
+  }
+
+  // 문제 ID로 문제 조회
+  async getQuestionById(quizId: number): Promise<QuizQuestion | null> {
+    return this.quizRepository.findOne({
+      where: { id: quizId },
     });
   }
 
