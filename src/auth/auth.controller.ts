@@ -19,6 +19,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
+  @UseInterceptors(UserLoadInterceptor)
   @UseGuards(FirebaseAuthGuard)
   async register(
     @Req() req: Request,
