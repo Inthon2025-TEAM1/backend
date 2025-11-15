@@ -28,6 +28,9 @@ export class UserService {
     private candyTransactionRepository: Repository<CandyTransaction>,
   ) {}
 
+  async getUsers() {
+    return this.userRepository.find();
+  }
   // Role 설정
   async setRole(userId: number, role: UserRole): Promise<User> {
     await this.userRepository.update(userId, { role });
@@ -54,7 +57,18 @@ export class UserService {
       where: { parentId },
     });
   }
-
+  // 자녀 제거 (Parent-Child 연결 해제)
+  async removeChild(
+    parentId: number,
+    childId: number,
+  ): Promise<{ success: boolean; message: string }> {
+    const child = await this.userRepository.findOne({
+      where: { id: childId, parentId },
+    });
+    if (!child) throw new Error('Child not found');
+    await this.userRepository.update(childId, { parentId: null });
+    return { success: true, message: 'Child removed successfully' };
+  }
   // Candy 업데이트
   async incrementCandy(userId: number, amount: number): Promise<number> {
     try {
