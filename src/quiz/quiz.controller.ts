@@ -49,10 +49,7 @@ export class QuizController {
       title: subject || '퀴즈',
       questions: questions.map((q) => ({
         id: q.id.toString(),
-        question:
-          typeof q.question === 'string'
-            ? q.question
-            : JSON.stringify(q.question),
+        question: q.question,
         answer: q.answer,
         explanation: q.explain,
         difficulty: this.mapDifficulty(q.grade),
