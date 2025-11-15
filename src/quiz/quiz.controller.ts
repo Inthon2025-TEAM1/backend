@@ -13,6 +13,7 @@ import { QuizService } from './quiz.service';
 import { FirebaseAuthGuard } from '../auth/firebase/firebase-auth.guard';
 import { UserLoadInterceptor } from '../auth/interceptor/auth.interceptor';
 import { CurrentUserId } from '../auth/decorators/current-user.decorator';
+import { SubscriptionGuard } from 'src/auth/guards/subscription.guard';
 
 @Controller('quiz')
 @UseGuards(FirebaseAuthGuard)
@@ -21,6 +22,7 @@ export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
   @Get()
+  @UseGuards(SubscriptionGuard)
   async getQuestions(
     @CurrentUserId() userId: number,
     @Query('chapterId') chapterId: string,
@@ -96,6 +98,7 @@ export class QuizController {
   }
 
   @Post('submit')
+  @UseGuards(SubscriptionGuard)
   async submitAnswer(
     @CurrentUserId() userId: number,
     @Body('quizId') quizId: number,
