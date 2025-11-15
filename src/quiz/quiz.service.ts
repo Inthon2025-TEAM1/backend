@@ -145,4 +145,11 @@ export class QuizService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  // 문제 ID로 문제 조회
+  async getQuestionById(quizId: number): Promise<QuizQuestion | null> {
+    return this.quizRepository.findOne({
+      where: { id: quizId },
+    });
+  }
 }
