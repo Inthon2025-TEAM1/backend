@@ -84,6 +84,18 @@ export class QuizController {
     return this.quizService.findChaptersByGrade(gradeLevel);
   }
 
+  @Get('status')
+  async getChapterStatus(
+    @CurrentUserId() userId: number,
+    @Query('chapterId', ParseIntPipe) chapterId: number,
+  ) {
+    const isCompleted = await this.quizService.checkChapterCompletion(
+      userId,
+      chapterId,
+    );
+    return { isCompleted };
+  }
+
   @Post('submit')
   async submitAnswer(
     @CurrentUserId() userId: number,

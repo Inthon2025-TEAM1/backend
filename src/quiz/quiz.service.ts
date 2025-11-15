@@ -40,10 +40,36 @@ export class QuizService {
     gradeLevel: number,
   ): Promise<{ id: number; chapterName: string; chapterOrder: number }[]> {
     return this.chapterRepository.find({
-      select: ['id', 'chapterName', 'chapterOrder'],
+      select: ['id', 'chapterName', 'chapterDescription', 'chapterOrder'],
       where: { gradeLevel: gradeLevel },
       order: { chapterOrder: 'ASC' },
     });
+  }
+
+  async checkChapterCompletion(
+    childId: number,
+    chapterId: number,
+  ): Promise<boolean> {
+    const attempts = await this.attemptRepository.find({
+      where: { childId: childId },
+      select: ['quizId'],
+    });
+    const attemptedQuizIds = attempts.map((a) => a.quizId);
+
+    const query = this.quizRepository.createQueryBuilder('question');
+
+    query
+      .select('question.id')
+      .where('question.chapterId = :chapterId', { chapterId });
+
+    if (attemptedQuizIds.length > 0) {
+      query.andWhere('question.id NOT IN (:...ids)', { ids: attemptedQuizIds });
+    }
+
+    const unsolvedQuestion = await query.getOne();
+
+    // 안 푼 문제가 없으면(null) -> 완료(true)
+    return unsolvedQuestion === null;
   }
 
   // 챕터별 문제 가져오기
