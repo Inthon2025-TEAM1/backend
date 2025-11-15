@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { QuizModule } from './quiz/quiz.module';
+import { PaymentModule } from './payment/payment.module';
+import { MentoringModule } from './mentoring/mentoring.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
@@ -17,6 +19,8 @@ import { QuizQuestion } from './quiz/quiz-question.entity';
     AuthModule,
     UserModule,
     QuizModule,
+    PaymentModule,
+    MentoringModule,
     TypeOrmModule.forRoot({
       type: 'mysql', // MariaDB는 typeorm에서 mysql 타입을 사용함
       host: process.env.MYSQL_HOST,
