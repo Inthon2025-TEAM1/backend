@@ -47,7 +47,11 @@ export class QuizController {
   async getChaptersByGrade(
     @Query('gradeLevel', ParseIntPipe) gradeLevel: number,
   ) {
-    return this.quizService.findChaptersByGrade(gradeLevel);
+    console.log(gradeLevel, 'gradeLevel received in controller');
+    const array= await this.quizService.findChaptersByGrade(gradeLevel);
+    return {
+      data: array
+    }
   }
 
   @Get('status')
