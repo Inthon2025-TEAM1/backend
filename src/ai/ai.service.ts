@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { QuizService } from '../quiz/quiz.service';
@@ -21,6 +21,7 @@ export interface AttemptData {
   attemptId: number;
   quizId: number;
   chapterId: number;
+  chapterName: string;
   grade: number;
   questionType: string;
   questionText: string;
@@ -72,16 +73,16 @@ export class AiService {
     const attempts = await this.quizService.getAttemptsById(childId);
 
     if (attempts.length === 0) {
-      throw new Error('풀이 내역이 없습니다.');
+      throw new NotFoundException('풀이 내역이 없습니다.');
     }
 
     // 2. 문제 정보를 포함한 AttemptData 배열 생성
     const attemptDataList: AttemptData[] = [];
 
     for (const attempt of attempts) {
-      // QuizAttempt에 question relation이 없으므로, quizId로 문제 정보 조회
-      const question = await this.quizService.getQuestionById(attempt.quizId);
-      
+      // quiz relation에서 문제 정보 가져오기
+      const question = attempt.quiz;
+
       if (!question) continue;
 
       const questionText =
@@ -93,6 +94,8 @@ export class AiService {
         attemptId: attempt.id,
         quizId: attempt.quizId,
         chapterId: question.chapterId,
+        chapterName:
+          question.chapter?.chapterName || `챕터 ${question.chapterId}`,
         grade: question.grade,
         questionType: question.type,
         questionText,
@@ -121,7 +124,8 @@ export class AiService {
     const totalAttempts = attempts.length;
     const correctCount = attempts.filter((a) => a.isCorrect).length;
     const wrongCount = totalAttempts - correctCount;
-    const accuracyRate = totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
+    const accuracyRate =
+      totalAttempts > 0 ? (correctCount / totalAttempts) * 100 : 0;
 
     // 챕터별 틀린 문제 수
     const wrongByChapter: Record<number, number> = {};
@@ -152,9 +156,7 @@ export class AiService {
   /**
    * AI 서비스에 약점 분석 요청 (OpenAI 직접 호출)
    */
-  async analyzeWeakness(
-    childId: number,
-  ): Promise<WeaknessAnalysisResponse> {
+  async analyzeWeakness(childId: number): Promise<WeaknessAnalysisResponse> {
     // 1. 데이터 준비
     const analysisData = await this.prepareAnalysisData(childId);
 
@@ -215,10 +217,12 @@ export class AiService {
 
     // 챕터별로 틀린 문제 그룹화
     const chapterWrongQuestions: Record<number, any[]> = {};
+    const chapterNames: Record<number, string> = {};
     for (const attempt of wrongAttempts) {
       const chapterId = attempt.chapterId;
       if (!chapterWrongQuestions[chapterId]) {
         chapterWrongQuestions[chapterId] = [];
+        chapterNames[chapterId] = attempt.chapterName;
       }
 
       // 문제 텍스트, 선택한 답, 정답만 포함 (해설 제외)
@@ -239,6 +243,9 @@ export class AiService {
       const chapterId = attempt.chapterId;
       if (!chapterStats[chapterId]) {
         chapterStats[chapterId] = { total: 0, correct: 0, wrong: 0 };
+        if (!chapterNames[chapterId]) {
+          chapterNames[chapterId] = attempt.chapterName;
+        }
       }
 
       chapterStats[chapterId].total++;
@@ -264,15 +271,19 @@ export class AiService {
       .map(Number)
       .sort()) {
       const wrongQuestions = chapterWrongQuestions[chapterId];
-      const chapterStat =
-        chapterStats[chapterId] || { total: 0, correct: 0, wrong: 0 };
+      const chapterStat = chapterStats[chapterId] || {
+        total: 0,
+        correct: 0,
+        wrong: 0,
+      };
       const accuracy =
         chapterStat.total > 0
           ? (chapterStat.correct / chapterStat.total) * 100
           : 0;
 
+      const chapterName = chapterNames[chapterId] || `챕터 ${chapterId}`;
       prompt += `
-### 챕터 ${chapterId}
+### ${chapterName}
 - 총 문제 수: ${chapterStat.total}
 - 정확도: ${accuracy.toFixed(2)}%
 - 틀린 문제 목록 (총 ${wrongQuestions.length}개):
@@ -303,8 +314,9 @@ export class AiService {
 {
   "weaknesses": [
     {
-      "category": "챕터 1",
+      "category": "챕터 이름",
       "chapterId": 1,
+      "chapterName": "실제 챕터 이름",
       "problemCount": 5,
       "accuracyRate": 40.5,
       "commonMistakes": ["실수 패턴 1", "실수 패턴 2"],
@@ -356,9 +368,7 @@ export class AiService {
       }),
     );
 
-    const recommendations = resultJson.recommendations || [
-      '계속 노력하세요!',
-    ];
+    const recommendations = resultJson.recommendations || ['계속 노력하세요!'];
     const improvementAreas = resultJson.improvementAreas || [];
 
     // overallScore가 없으면 기본값 사용
@@ -387,7 +397,13 @@ export class AiService {
     // 챕터별 약점 분석
     const chapterStats: Record<
       number,
-      { total: number; correct: number; wrong: number; mistakes: string[] }
+      {
+        total: number;
+        correct: number;
+        wrong: number;
+        mistakes: string[];
+        chapterName: string;
+      }
     > = {};
 
     for (const attempt of attempts) {
@@ -398,6 +414,7 @@ export class AiService {
           correct: 0,
           wrong: 0,
           mistakes: [],
+          chapterName: attempt.chapterName,
         };
       }
 
@@ -414,8 +431,7 @@ export class AiService {
 
     const weaknesses: Weakness[] = Object.entries(chapterStats).map(
       ([chapterId, data]) => {
-        const accuracy =
-          data.total > 0 ? (data.correct / data.total) * 100 : 0;
+        const accuracy = data.total > 0 ? (data.correct / data.total) * 100 : 0;
 
         let priority: 'high' | 'medium' | 'low';
         if (accuracy < 50) {
@@ -427,8 +443,9 @@ export class AiService {
         }
 
         return {
-          category: `챕터 ${chapterId}`,
+          category: data.chapterName,
           chapterId: Number(chapterId),
+          chapterName: data.chapterName,
           problemCount: data.wrong,
           accuracyRate: Math.round(accuracy * 100) / 100,
           commonMistakes: data.mistakes.slice(0, 3),
@@ -468,4 +485,3 @@ export class AiService {
     };
   }
 }
-

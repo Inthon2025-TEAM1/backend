@@ -8,12 +8,7 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Get('analyze-weakness')
-  async analyzeWeakness(
-    @Req() req,
-  ): Promise<WeaknessAnalysisResponse> {
+  async analyzeWeakness(@Req() req): Promise<WeaknessAnalysisResponse> {
     return this.aiService.analyzeWeakness(req.user.id);
   }
 }
-
-
-

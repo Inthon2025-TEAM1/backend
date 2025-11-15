@@ -141,7 +141,7 @@ export class QuizService {
   async getAttemptsById(childId: number): Promise<QuizAttempt[]> {
     return this.attemptRepository.find({
       where: { childId },
-      relations: ['question'],
+      relations: ['quiz', 'quiz.chapter'],
       order: { createdAt: 'DESC' },
     });
   }
