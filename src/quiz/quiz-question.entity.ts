@@ -4,10 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  JoinColumn,
-  ManyToOne,
 } from 'typeorm';
-import { Chapter } from './chapter.entity';
 
 export enum QuizType {
   MULTIPLE_CHOICE = '객관식',
@@ -27,10 +24,6 @@ export class QuizQuestion {
     enum: QuizType,
   })
   type: QuizType;
-
-  @ManyToOne(() => Chapter)
-  @JoinColumn({ name: 'chapterId' })
-  chapter: Chapter;
 
   @Column('bigint')
   chapterId: number;

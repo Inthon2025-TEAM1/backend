@@ -4,11 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
-import { User } from '../user/user.entity';
-import { Mentor } from './mentor.entity';
 
 export enum MentoringStatus {
   PENDING = 'pending',
@@ -23,10 +19,6 @@ export class MentoringRequest {
 
   @Column()
   parentId: number;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'parentId' })
-  parent: User;
 
   @Column()
   title: string; // 멘토링 신청 제목
