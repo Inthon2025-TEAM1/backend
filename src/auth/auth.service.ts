@@ -2,6 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';
 import { Repository } from 'typeorm';
+import { CreateUserReqDto } from './dto/create-user.req.dto';
+import {
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -33,5 +39,34 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  async registerUser(
+    firebaseUser: any,
+    createUserReqDto: CreateUserReqDto,
+  ): Promise<User> {
+    const user = await this.findByFirebaseUid(firebaseUser.uid);
+
+    if (!user) {
+      throw new NotFoundException(
+        'User profile not synchronized. Please log in again.',
+      );
+    }
+
+    if (user.role !== null) {
+      throw new ConflictException('Role already set.');
+    }
+
+    const name = firebaseUser.displayName;
+    if (!name) {
+      throw new BadRequestException(
+        'User name is required and missing from Firebase account data.',
+      );
+    }
+
+    user.role = createUserReqDto.role;
+    user.name = name;
+
+    return this.userRepository.save(user);
   }
 }
