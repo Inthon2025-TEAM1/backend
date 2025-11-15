@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
@@ -11,6 +12,7 @@ import { User } from './user/user.entity';
       isGlobal: true,
     }),
     AuthModule,
+    UserModule,
     TypeOrmModule.forRoot({
       type: 'mysql', // MariaDB는 typeorm에서 mysql 타입을 사용함
       host: process.env.MYSQL_HOST,
