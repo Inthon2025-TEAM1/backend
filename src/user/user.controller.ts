@@ -103,4 +103,9 @@ export class UserController {
   ) {
     return this.userService.getChildRewards(userId, month);
   }
+
+  @Get('children-count')
+  async getChildrenCount(@CurrentUserId() userId: number) {
+    return this.userService.getChildrenCount(userId);
+  }
 }
