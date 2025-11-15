@@ -22,12 +22,14 @@ export class QuizController {
 
   @Get()
   async getQuestions(
+    @CurrentUserId() userId: number,
     @Query('chapterId') chapterId: string,
     @Query('grade') grade?: string,
     @Query('subject') subject?: string,
     @Query('schoolLevel') schoolLevel?: string,
     @Query('quizId') quizId?: string,
   ) {
+    console.log('[Quiz] User ID:', userId, '| Chapter:', chapterId);
     const chapterIdNum = parseInt(chapterId, 10);
 
     if (isNaN(chapterIdNum)) {
@@ -90,6 +92,7 @@ export class QuizController {
     @Body('quizId') quizId: number,
     @Body('answer') answer: string,
   ) {
+    console.log('[Quiz Submit] User ID:', userId, '| Quiz ID:', quizId, '| Answer:', answer);
     return this.quizService.submitAnswer(userId, quizId, answer);
   }
 

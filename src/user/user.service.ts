@@ -11,6 +11,7 @@ import {
   Between,
   MoreThanOrEqual,
   LessThanOrEqual,
+  DataSource,
 } from 'typeorm';
 import { User, UserRole } from './user.entity';
 import { CandyTransaction } from '../candy-transaction/candy-transaction.entity';
@@ -18,6 +19,7 @@ import { CandyTransaction } from '../candy-transaction/candy-transaction.entity'
 @Injectable()
 export class UserService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(QuizAttempt)
@@ -101,6 +103,7 @@ export class UserService {
     }
 
     user.candy -= amount;
+
     await this.userRepository.save(user);
 
     await this.candyTransactionRepository.save({
@@ -114,6 +117,13 @@ export class UserService {
       success: true,
       remainingCandy: user.candy,
     };
+  }
+
+  async getPurchaseHistory(userId: number) {
+    return this.candyTransactionRepository.find({
+      where: { userId, type: 'spend' },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async getChildRewards(childId: number, month?: string) {

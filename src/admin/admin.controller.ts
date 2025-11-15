@@ -25,12 +25,7 @@ export class AdminController {
   }
 
   @Post('increment-candy')
-  @UseGuards(FirebaseAuthGuard)
-  @UseInterceptors(UserLoadInterceptor)
-  async incrementCandy(
-    @CurrentUserId() userId: number,
-    @Body() body: { amount: number },
-  ) {
-    return this.userService.incrementCandy(userId, body.amount);
+  async incrementCandy(@Body() body: { userId: number; amount: number }) {
+    return this.userService.incrementCandy(body.userId, body.amount);
   }
 }
