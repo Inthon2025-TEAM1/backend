@@ -106,6 +106,7 @@ export class UserController {
 
   @Get('children-count')
   async getChildrenCount(@CurrentUserId() userId: number) {
-    return this.userService.getChildrenCount(userId);
+    const count = await this.userService.getChildrenCount(userId);
+    return { count };
   }
 }

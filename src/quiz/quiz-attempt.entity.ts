@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { QuizQuestion } from './quiz-question.entity';
 
 @Entity('quiz_attempts')
 export class QuizAttempt {
@@ -16,6 +19,10 @@ export class QuizAttempt {
 
   @Column('bigint')
   quizId: number;
+
+  @ManyToOne(() => QuizQuestion)
+  @JoinColumn({ name: 'quizId' })
+  quiz: QuizQuestion;
 
   @Column()
   selectedChoice: string;
