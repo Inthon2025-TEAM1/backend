@@ -138,10 +138,17 @@ export class QuizService {
   }
 
   // 풀이 내역 조회
-  async getAttempts(childId: number): Promise<QuizAttempt[]> {
+  async getAttemptsById(childId: number): Promise<QuizAttempt[]> {
     return this.attemptRepository.find({
       where: { childId },
       relations: ['question'],
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async getAllAttempts(): Promise<QuizAttempt[]> {
+    return this.attemptRepository.find({
+      relations: ['quiz'],
       order: { createdAt: 'DESC' },
     });
   }
