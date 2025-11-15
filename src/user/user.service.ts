@@ -169,4 +169,10 @@ export class UserService {
       stats,
     };
   }
+
+  async getChildrenCount(userId: number) {
+    return this.userRepository.count({
+      where: { parentId: userId, role: UserRole.CHILD },
+    });
+  }
 }
