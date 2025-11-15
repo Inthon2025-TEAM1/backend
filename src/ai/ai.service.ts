@@ -68,9 +68,9 @@ export class AiService {
   /**
    * 유저의 풀이 내역을 가져와서 AI 분석 요청 형태로 변환
    */
-  async prepareAnalysisData(childId: number): Promise<WeaknessAnalysisRequest> {
-    // 1. 모든 풀이 내역 가져오기
-    const attempts = await this.quizService.getAttemptsById(childId);
+  async prepareAnalysisData(childId: number, month?: string): Promise<WeaknessAnalysisRequest> {
+    // 1. 풀이 내역 가져오기 (월별 필터 적용)
+    const attempts = await this.quizService.getAttemptsById(childId, month);
 
     if (attempts.length === 0) {
       throw new NotFoundException('풀이 내역이 없습니다.');
@@ -156,9 +156,9 @@ export class AiService {
   /**
    * AI 서비스에 약점 분석 요청 (OpenAI 직접 호출)
    */
-  async analyzeWeakness(childId: number): Promise<WeaknessAnalysisResponse> {
+  async analyzeWeakness(childId: number, month?: string): Promise<WeaknessAnalysisResponse> {
     // 1. 데이터 준비
-    const analysisData = await this.prepareAnalysisData(childId);
+    const analysisData = await this.prepareAnalysisData(childId, month);
 
     const attempts = analysisData.attempts;
     const stats = analysisData.statistics;

@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRandomCandy } from 'src/util/candy.util';
-import { In, Not, Repository } from 'typeorm';
+import { In, Not, Repository, Between } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { Chapter } from './chapter.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
@@ -138,9 +138,21 @@ export class QuizService {
   }
 
   // 풀이 내역 조회
-  async getAttemptsById(childId: number): Promise<QuizAttempt[]> {
+  async getAttemptsById(childId: number, month?: string): Promise<QuizAttempt[]> {
+    let whereCondition: any = { childId };
+
+    if (month) {
+      const startDate = new Date(month + '-01');
+      const endDate = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth() + 1,
+        1,
+      );
+      whereCondition.createdAt = Between(startDate, endDate);
+    }
+
     return this.attemptRepository.find({
-      where: { childId },
+      where: whereCondition,
       relations: ['quiz', 'quiz.chapter'],
       order: { createdAt: 'DESC' },
     });
