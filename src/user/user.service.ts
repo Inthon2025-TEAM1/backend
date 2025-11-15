@@ -1,10 +1,7 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QuizAttempt } from 'src/quiz/quiz-attempt.entity';
+import { Not, Repository } from 'typeorm';
 import { User, UserRole } from './user.entity';
 
 @Injectable()
@@ -12,6 +9,8 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(QuizAttempt)
+    private attemptRepository: Repository<QuizAttempt>,
   ) {}
 
   // Role 설정
@@ -53,5 +52,23 @@ export class UserService {
     } catch (error) {
       throw new InternalServerErrorException('Candy 업데이트 실패');
     }
+  }
+
+  async getRewardCandyHistory(
+    childId: number,
+  ): Promise<{ rewardCandy: number; createdAt: Date }[]> {
+    const attempts = await this.attemptRepository.find({
+      where: {
+        rewardCandy: Not(0),
+        childId,
+      },
+      select: ['rewardCandy', 'createdAt'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return attempts.map((attempt) => ({
+      rewardCandy: attempt.rewardCandy,
+      createdAt: attempt.createdAt,
+    }));
   }
 }
