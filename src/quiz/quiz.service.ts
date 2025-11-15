@@ -67,7 +67,7 @@ export class QuizService {
 
     // 캔디 지급
     if (rewardCandy > 0) {
-      await this.userService.updateCandy(childId, rewardCandy);
+      await this.userService.incrementCandy(childId, rewardCandy);
     }
 
     return {

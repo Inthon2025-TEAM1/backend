@@ -5,7 +5,13 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuizAttempt } from 'src/quiz/quiz-attempt.entity';
-import { Not, Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import {
+  Not,
+  Repository,
+  Between,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+} from 'typeorm';
 import { User, UserRole } from './user.entity';
 import { CandyTransaction } from '../candy-transaction/candy-transaction.entity';
 
@@ -48,7 +54,7 @@ export class UserService {
   }
 
   // Candy 업데이트
-  async updateCandy(userId: number, amount: number): Promise<number> {
+  async incrementCandy(userId: number, amount: number): Promise<number> {
     try {
       await this.userRepository.increment(
         { id: userId }, // where 조건
@@ -57,7 +63,7 @@ export class UserService {
       );
       return amount;
     } catch (error) {
-      throw new InternalServerErrorException('Candy 업데이트 실패');
+      throw new InternalServerErrorException('Candy 업데이트 실패', error);
     }
   }
 

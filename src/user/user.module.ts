@@ -5,9 +5,13 @@ import { UserController } from './user.controller';
 import { User } from './user.entity';
 import { QuizAttempt } from '../quiz/quiz-attempt.entity';
 import { CandyTransaction } from '../candy-transaction/candy-transaction.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([User, QuizAttempt, CandyTransaction])],
+  imports: [
+    TypeOrmModule.forFeature([User, QuizAttempt, CandyTransaction]),
+    AuthModule,
+  ],
   providers: [UserService],
   controllers: [UserController],
   exports: [UserService],

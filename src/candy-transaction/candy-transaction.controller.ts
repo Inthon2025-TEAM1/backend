@@ -1,9 +1,18 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CandyTransactionService } from './candy-transaction.service';
 import { FirebaseAuthGuard } from '../auth/firebase/firebase-auth.guard';
+import { UserLoadInterceptor } from '../auth/interceptor/auth.interceptor';
+import { CurrentUserId } from '../auth/decorators/current-user.decorator';
 
 @Controller('candy')
 @UseGuards(FirebaseAuthGuard)
+@UseInterceptors(UserLoadInterceptor)
 export class CandyTransactionController {
   constructor(
     private readonly candyTransactionService: CandyTransactionService,
@@ -11,14 +20,10 @@ export class CandyTransactionController {
 
   @Post('spend')
   async spendCandy(
-    @Req() req,
+    @CurrentUserId() userId: number,
     @Body('amount') amount: number,
     @Body('itemName') itemName: string,
   ) {
-    return this.candyTransactionService.spendCandy(
-      req.user.id,
-      amount,
-      itemName,
-    );
+    return this.candyTransactionService.spendCandy(userId, amount, itemName);
   }
 }
