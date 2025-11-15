@@ -9,7 +9,12 @@ import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, QuizAttempt, CandyTransaction]),
+    TypeOrmModule.forFeature([
+      User,
+      QuizAttempt,
+      QuizAttempt,
+      CandyTransaction,
+    ]),
     AuthModule,
   ],
   providers: [UserService],

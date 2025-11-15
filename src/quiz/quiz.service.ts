@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRandomCandy } from 'src/util/candy.util';
-import { Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { UserService } from '../user/user.service';
+import { Chapter } from './chapter.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
 import { QuizQuestion, QuizType } from './quiz-question.entity';
 import { QuizQuestionDto } from './quiz.dto';
@@ -14,6 +15,8 @@ export class QuizService {
     private quizRepository: Repository<QuizQuestion>,
     @InjectRepository(QuizAttempt)
     private attemptRepository: Repository<QuizAttempt>,
+    @InjectRepository(Chapter)
+    private chapterRepository: Repository<Chapter>,
     private userService: UserService,
   ) {}
 
@@ -33,11 +36,42 @@ export class QuizService {
     await this.quizRepository.save(quizEntities);
     return quizEntities;
   }
+  async findChaptersByGrade(
+    gradeLevel: number,
+  ): Promise<{ id: number; chapterName: string; chapterOrder: number }[]> {
+    return this.chapterRepository.find({
+      select: ['id', 'chapterName', 'chapterOrder'],
+      where: { gradeLevel: gradeLevel },
+      order: { chapterOrder: 'ASC' },
+    });
+  }
 
   // 챕터별 문제 가져오기
   async getQuestionsByChapter(chapterId: number): Promise<QuizQuestion[]> {
     return this.quizRepository.find({
       where: { chapterId },
+      order: { id: 'ASC' },
+    });
+  }
+
+  //챕터별 풀이 안한 문제 가져오기
+  async getUnsolvedQuestionsByChapter(
+    childId: number,
+    chapterId: number,
+  ): Promise<QuizQuestion[]> {
+    // 이미 푼 문제 ID 목록 조회
+    const attempts = await this.attemptRepository.find({
+      where: { childId: childId },
+      select: ['quizId'],
+    });
+    const attemptedQuizIds = attempts.map((a) => a.quizId);
+
+    // 푼 문제를 제외하고 챕터별 문제 조회
+    return this.quizRepository.find({
+      where: {
+        chapterId: chapterId,
+        id: attemptedQuizIds.length > 0 ? Not(In(attemptedQuizIds)) : undefined,
+      },
       order: { id: 'ASC' },
     });
   }

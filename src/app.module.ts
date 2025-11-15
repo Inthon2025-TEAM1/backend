@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { QuizModule } from './quiz/quiz.module';
+import { PaymentModule } from './payment/payment.module';
+import { MentoringModule } from './mentoring/mentoring.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
@@ -9,9 +13,6 @@ import { RewardModule } from './reward/reward.module';
 import { CandyTransaction } from './candy-transaction/candy-transaction.entity';
 import { CandyTransactionModule } from './candy-transaction/candy-transaction.module';
 import { AdminModule } from './admin/admin.module';
-import { QuizModule } from './quiz/quiz.module';
-import { PaymentModule } from './payment/payment.module';
-import { MentoringModule } from './mentoring/mentoring.module';
 import { QuizQuestion } from './quiz/quiz-question.entity';
 import { QuizAttempt } from './quiz/quiz-attempt.entity';
 import { Chapter } from './quiz/chapter.entity';
@@ -25,6 +26,10 @@ import { Reward } from './reward/reward.entity';
       isGlobal: true,
     }),
     AuthModule,
+    UserModule,
+    QuizModule,
+    PaymentModule,
+    MentoringModule,
     TypeOrmModule.forRoot({
       type: 'mysql', // MariaDB는 typeorm에서 mysql 타입을 사용함
       host: process.env.MYSQL_HOST,
