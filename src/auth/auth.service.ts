@@ -45,6 +45,7 @@ export class AuthService {
     firebaseUser: any,
     createUserReqDto: CreateUserReqDto,
   ): Promise<User> {
+    console.log('registerUser', firebaseUser, createUserReqDto);
     const user = await this.findByFirebaseUid(firebaseUser.uid);
 
     if (!user) {
@@ -57,7 +58,7 @@ export class AuthService {
       throw new ConflictException('Role already set.');
     }
 
-    const name = firebaseUser.displayName;
+    const name = firebaseUser.name;
     if (!name) {
       throw new BadRequestException(
         'User name is required and missing from Firebase account data.',

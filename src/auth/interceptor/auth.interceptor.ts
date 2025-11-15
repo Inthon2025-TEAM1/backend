@@ -12,8 +12,9 @@ export class UserLoadInterceptor implements NestInterceptor {
 
   async intercept(context: ExecutionContext, next: CallHandler) {
     const req = context.switchToHttp().getRequest();
-    const firebaseUser = req.firebaseUser;
+    const firebaseUser = req.user;
 
+    console.log('firebaseUser', firebaseUser);
     req.user = await this.authService.findOrCreateFromFirebase(firebaseUser);
 
     return next.handle();
