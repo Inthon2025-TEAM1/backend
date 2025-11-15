@@ -17,7 +17,7 @@ export class UserLoadInterceptor implements NestInterceptor {
   async intercept(context: ExecutionContext, next: CallHandler) {
     const req = context.switchToHttp().getRequest();
     const firebaseUser = req.user; // DecodedIdToken
-
+    console.log('UserLoadInterceptor - firebaseUser:', firebaseUser);
     if (firebaseUser?.uid) {
       this.logger.log(`Loading user from Firebase UID: ${firebaseUser.uid}`);
       console.log('firebaseUser', firebaseUser);

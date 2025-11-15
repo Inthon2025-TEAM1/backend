@@ -21,44 +21,8 @@ export class QuizController {
   constructor(private readonly quizService: QuizService) {}
 
   @Get()
-  async getQuestions(
-    @CurrentUserId() userId: number,
-    @Query('chapterId') chapterId: string,
-    @Query('grade') grade?: string,
-    @Query('subject') subject?: string,
-    @Query('schoolLevel') schoolLevel?: string,
-    @Query('quizId') quizId?: string,
-  ) {
-    console.log('[Quiz] User ID:', userId, '| Chapter:', chapterId);
-    const chapterIdNum = parseInt(chapterId, 10);
-
-    if (isNaN(chapterIdNum)) {
-      return {
-        quizId: quizId || 'default',
-        title: subject || '퀴즈',
-        questions: [],
-      };
-    }
-
-    const questions =
-      await this.quizService.getQuestionsByChapter(chapterIdNum);
-
-    // 프론트엔드가 기대하는 형식으로 변환
-    return {
-      quizId: quizId || chapterId || 'default',
-      title: subject || '퀴즈',
-      questions: questions.map((q) => ({
-        id: q.id.toString(),
-        question:
-          typeof q.question === 'string'
-            ? q.question
-            : JSON.stringify(q.question),
-        answer: q.answer,
-        explanation: q.explain,
-        difficulty: this.mapDifficulty(q.grade),
-        choices: q.choices || [],
-      })),
-    };
+  async getQuestions(@Query('chapterId', ParseIntPipe) chapterId: number) {
+    return this.quizService.getQuestionsByChapter(chapterId);
   }
 
   private mapDifficulty(grade: number): string {
@@ -104,7 +68,14 @@ export class QuizController {
     @Body('quizId') quizId: number,
     @Body('answer') answer: string,
   ) {
-    console.log('[Quiz Submit] User ID:', userId, '| Quiz ID:', quizId, '| Answer:', answer);
+    console.log(
+      '[Quiz Submit] User ID:',
+      userId,
+      '| Quiz ID:',
+      quizId,
+      '| Answer:',
+      answer,
+    );
     return this.quizService.submitAnswer(userId, quizId, answer);
   }
 
