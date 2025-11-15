@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Query, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { QuizService } from './quiz.service';
 import { FirebaseAuthGuard } from '../auth/firebase/firebase-auth.guard';
 
@@ -15,10 +23,10 @@ export class QuizController {
   @Post('submit')
   async submitAnswer(
     @Req() req,
-    @Body('questionId') questionId: number,
+    @Body('quizId') quizId: number,
     @Body('answer') answer: string,
   ) {
-    return this.quizService.submitAnswer(req.user.id, questionId, answer);
+    return this.quizService.submitAnswer(req.user.id, quizId, answer);
   }
 
   @Get('attempts')

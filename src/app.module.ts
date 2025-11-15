@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './user/user.entity';
+import { CandyModule } from './candy/candy.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -23,6 +24,7 @@ import { User } from './user/user.entity';
       charset: 'utf8mb4', // 이모지 지원
     }),
     TypeOrmModule.forFeature([User]),
+    CandyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

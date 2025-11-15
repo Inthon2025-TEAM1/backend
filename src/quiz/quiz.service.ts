@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { QuizQuestion } from './quiz-question.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
 import { UserService } from '../user/user.service';
+import { getRandomCandy } from 'src/util/candy.util';
 
 @Injectable()
 export class QuizService {
@@ -26,18 +27,21 @@ export class QuizService {
   // 정답 제출 + 랜덤 보상
   async submitAnswer(
     childId: number,
-    questionId: number,
-    selectedAnswer: string,
+    quizId: number,
+    selectedChoice: string,
   ): Promise<any> {
-    const question = await this.quizRepository.findOne({ where: { id: questionId } });
-    const isCorrect = question.answer === selectedAnswer;
-    const rewardCandy = isCorrect ? Math.floor(Math.random() * 4) : 0; // 0~3 랜덤
+    const question = await this.quizRepository.findOne({
+      where: { id: quizId },
+    });
+    if (!question) throw new NotFoundException('Question not found');
+    const isCorrect = question.answer === selectedChoice;
+    const rewardCandy = isCorrect ? getRandomCandy() : 0;
 
     // 풀이 기록 저장
     const attempt = this.attemptRepository.create({
       childId,
-      questionId,
-      selectedAnswer,
+      quizId,
+      selectedChoice,
       isCorrect,
       rewardCandy,
     });
@@ -51,7 +55,7 @@ export class QuizService {
     return {
       isCorrect,
       rewardCandy,
-      explanation: isCorrect ? null : question.explanation,
+      explanation: isCorrect ? null : question.explain,
     };
   }
 
