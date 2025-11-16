@@ -21,6 +21,7 @@ import { MentoringRequest } from './mentoring/mentoring-request.entity';
 import { Mentor } from './mentoring/mentor.entity';
 import { Reward } from './reward/reward.entity';
 import { AiModule } from './ai/ai.module';
+import { Report } from './ai/ai.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -48,6 +49,7 @@ import { AiModule } from './ai/ai.module';
         MentoringRequest,
         Mentor,
         Reward,
+        Report,
       ],
       synchronize: true, // 개발환경에서는 true, 운영은 false
       charset: 'utf8mb4', // 이모지 지원
