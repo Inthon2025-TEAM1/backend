@@ -10,8 +10,12 @@ export class AiController {
   @Get('analyze-weakness')
   async analyzeWeakness(
     @Req() req,
-    @Query('month') month?: string,
+    @Query('childId') childId?: string,
+    @Query('forceRefresh') forceRefresh?: string,
   ): Promise<WeaknessAnalysisResponse> {
-    return this.aiService.analyzeWeakness(req.user.id, month);
+    // If childId is provided, use it; otherwise use the logged-in user's ID
+    const targetUserId = childId ? parseInt(childId, 10) : req.user.id;
+    const shouldForceRefresh = forceRefresh === 'true';
+    return this.aiService.analyzeWeakness(targetUserId, shouldForceRefresh);
   }
 }

@@ -1,3 +1,5 @@
+import { MentoringStatus } from './mentoring-request.entity';
+
 export class MentoringRequestDto {
   childId: number;
   title: string;
@@ -7,6 +9,6 @@ export class MentoringRequestDto {
 }
 
 export class UpdateMentoringStatusDto {
-  status: 'matched' | 'rejected';
+  status: MentoringStatus;
   mentorName?: string;
 }

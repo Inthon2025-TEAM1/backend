@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Payment } from './payment.entity';
+import { Payment, PaymentStatus } from './payment.entity';
 import { CreatePaymentDto } from './payment.dto';
 import { User, UserRole } from 'src/user/user.entity';
+import { isPast, addMonths } from 'date-fns';
 
 @Injectable()
 export class PaymentService {
@@ -31,5 +36,57 @@ export class PaymentService {
       endAt: payment.endAt,
     });
     return this.paymentRepository.save(newPayment);
+  }
+  async approvePayment(paymentId: number) {
+    const payment = await this.paymentRepository.findOne({
+      where: { id: paymentId },
+    });
+
+    if (!payment) {
+      throw new NotFoundException('Payment request not found.');
+    }
+    if (payment.status !== PaymentStatus.PENDING) {
+      throw new BadRequestException(
+        'Payment request is not in PENDING status.',
+      );
+    }
+    const children = await this.userRepository.find({
+      where: { parentId: payment.parentId, role: UserRole.CHILD },
+    });
+
+    const updatedChildren = children.map((child) => {
+      let renewalStart = child.expiresAt;
+      if (!renewalStart || isPast(renewalStart)) {
+        renewalStart = new Date();
+      }
+
+      child.expiresAt = addMonths(renewalStart, 1);
+      return child;
+    });
+
+    await this.userRepository.save(updatedChildren);
+
+    payment.status = PaymentStatus.PAID;
+    payment.paidAt = new Date();
+    payment.startAt = new Date();
+    payment.endAt = addMonths(new Date(), 1);
+
+    await this.paymentRepository.save(payment);
+
+    return {
+      paymentId: payment.id,
+      status: PaymentStatus.PAID,
+      childrenUpdated: updatedChildren.length,
+    };
+  }
+  async findPendingPaymentsForAdmin() {
+    try {
+      return await this.paymentRepository.find({
+        where: { status: PaymentStatus.PENDING },
+      });
+    } catch (error) {
+      console.error('Error fetching pending payments for admin:', error);
+      throw new NotFoundException('결제 승인 대기 목록을 찾을 수 없습니다.');
+    }
   }
 }

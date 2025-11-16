@@ -10,6 +10,9 @@ import { MentoringService } from './mentoring.service';
   imports: [TypeOrmModule.forFeature([MentoringRequest, Mentor]), AuthModule],
   providers: [MentoringService],
   controllers: [MentoringController],
-  exports: [MentoringService],
+  exports: [
+    MentoringService,
+    TypeOrmModule.forFeature([MentoringRequest, Mentor]),
+  ],
 })
 export class MentoringModule {}

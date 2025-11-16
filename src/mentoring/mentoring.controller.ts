@@ -58,6 +58,4 @@ export class MentoringController {
   ) {
     return this.mentoringService.updateMentoringStatus(id, updateDto);
   }
-
- 
 }
