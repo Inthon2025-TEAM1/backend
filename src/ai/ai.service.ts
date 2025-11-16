@@ -94,9 +94,9 @@ export class AiService {
   /**
    * 유저의 풀이 내역을 가져와서 AI 분석 요청 형태로 변환
    */
-  async prepareAnalysisData(childId: number): Promise<WeaknessAnalysisRequest> {
-    // 1. 모든 풀이 내역 가져오기
-    const attempts = await this.quizService.getAttemptsById(childId);
+  async prepareAnalysisData(childId: number, lastMonthOnly: boolean = false): Promise<WeaknessAnalysisRequest> {
+    // 1. 풀이 내역 가져오기 (한 달 치만 가져올지 결정)
+    const attempts = await this.quizService.getAttemptsById(childId, lastMonthOnly);
 
     if (attempts.length === 0) {
       throw new NotFoundException('풀이 내역이 없습니다.');
@@ -182,13 +182,16 @@ export class AiService {
   /**
    * AI 서비스에 약점 분석 요청 (OpenAI 직접 호출)
    */
-  async analyzeWeakness(childId: number): Promise<WeaknessAnalysisResponse> {
-    const latestReport = await this.findLatestReport(childId);
-    if (latestReport) {
-      return latestReport as WeaknessAnalysisResponse;
+  async analyzeWeakness(childId: number, forceRefresh: boolean = false): Promise<WeaknessAnalysisResponse> {
+    // forceRefresh가 false일 때만 캐시된 리포트 확인
+    if (!forceRefresh) {
+      const latestReport = await this.findLatestReport(childId);
+      if (latestReport) {
+        return latestReport as WeaknessAnalysisResponse;
+      }
     }
 
-    const analysisData = await this.prepareAnalysisData(childId);
+    const analysisData = await this.prepareAnalysisData(childId, forceRefresh);
 
     const attempts = analysisData.attempts;
     const stats = analysisData.statistics;
