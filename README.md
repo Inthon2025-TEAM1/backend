@@ -311,52 +311,52 @@ TypeOrmModule.forRoot({
 ### User Management
 - `GET /user/me` - Get current user info
 - `GET /user/role` - Get user role
-- `POST /user/set-role` - Set user role
+- `POST /user/set-role` - Set user role (body: `{ role }`)
 - `GET /user/candy` - Get candy balance
-- `POST /user/spend-candy` - Spend candy
+- `POST /user/spend-candy` - Spend candy (body: `{ amount, itemName }`)
 - `GET /user/purchase-history` - Get purchase history
-- `GET /user/rewards` - Get child rewards (optional month query)
+- `GET /user/rewards?month={YYYY-MM}` - Get child rewards (optional month query parameter)
 - `GET /user/children` - Get children (for parents)
-- `POST /user/children` - Add child
+- `POST /user/children` - Add child (body: `{ childEmail }`)
 - `DELETE /user/children/:childId` - Remove child
 - `GET /user/children-count` - Get children count
 - `GET /user/reward-candy-history` - Get reward candy history
 
 ### Quiz
-- `GET /quiz` - Get quiz questions (requires subscription)
-- `GET /quiz/unsolved` - Get unsolved questions by chapter
-- `GET /quiz/chapters` - Get available chapters by grade level
-- `GET /quiz/status` - Get chapter completion status
-- `POST /quiz/submit` - Submit quiz attempt (requires subscription)
+- `GET /quiz?chapterId={id}&grade={grade}&subject={subject}&schoolLevel={level}&quizId={id}` - Get quiz questions (requires subscription)
+- `GET /quiz/unsolved?chapterId={id}` - Get unsolved questions by chapter
+- `GET /quiz/chapters?gradeLevel={level}` - Get available chapters by grade level
+- `GET /quiz/status?chapterId={id}` - Get chapter completion status
+- `POST /quiz/submit` - Submit quiz attempt (requires subscription, body: `{ quizId, answer }`)
 - `GET /quiz/attempts` - Get quiz attempt history
 
 ### Rewards & Candy
 - `GET /reward` - Get available rewards
-- `POST /candy/spend` - Spend candy on items
+- `POST /candy/spend` - Spend candy on items (body: `{ amount, itemName }`)
 
 ### Payment
-- `POST /payment/create` - Create payment
+- `POST /payment/create` - Create payment (body: `{ payment: { amount, depositorName, startAt?, endAt? } }`)
 
 ### Mentoring
-- `POST /mentoring/applications` - Create mentoring request
+- `POST /mentoring/applications` - Create mentoring request (body: `{ childId, title, childName, childAge, requirement }`)
 - `GET /mentoring/applications` - Get mentoring requests
 - `GET /mentoring/applications/:id` - Get specific request
 - `DELETE /mentoring/applications/:id` - Cancel request
-- `PATCH /mentoring/applications/:id/status` - Update request status
+- `PATCH /mentoring/applications/:id/status` - Update request status (body: `{ status, mentorName? }`)
 
 ### AI Analysis
-- `GET /ai/analyze-weakness` - Analyze learning weaknesses
+- `GET /ai/analyze-weakness?childId={id}&forceRefresh={true|false}` - Analyze learning weaknesses (optional childId for parents, optional forceRefresh to bypass cache)
 
 ### Admin
-- `POST /admin/create-quiz` - Create quiz
-- `POST /admin/increment-candy` - Increment user candy
+- `POST /admin/create-quiz` - Create quiz (body: `{ quizs: [...] }`)
+- `POST /admin/increment-candy` - Increment user candy (body: `{ userId, amount }`)
 - `GET /admin/get-all-users` - Get all users
 - `GET /admin/get-all-quizzes` - Get all quiz attempts
 - `POST /admin/create-mentor-mockup` - Create mentor mockup
-- `PATCH /admin/:id/approve` - Approve payment
+- `PATCH /admin/:id/approve` - Approve payment (paymentId as path parameter)
 - `GET /admin/pending-payments` - Get pending payments
 - `GET /admin/pending` - Get pending mentoring requests
-- `PATCH /admin/:id/status` - Update mentoring request status
+- `PATCH /admin/:id/status` - Update mentoring request status (body: `{ status }`, id as path parameter)
 
 ## 🔐 Authentication
 
