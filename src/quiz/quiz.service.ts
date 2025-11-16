@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getRandomCandy } from 'src/util/candy.util';
-import { In, Not, Repository } from 'typeorm';
+import { In, Not, Repository, MoreThanOrEqual } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { Chapter } from './chapter.entity';
 import { QuizAttempt } from './quiz-attempt.entity';
@@ -138,9 +138,18 @@ export class QuizService {
   }
 
   // 풀이 내역 조회
-  async getAttemptsById(childId: number): Promise<QuizAttempt[]> {
+  async getAttemptsById(childId: number, lastMonthOnly: boolean = false): Promise<QuizAttempt[]> {
+    const whereCondition: any = { childId };
+    
+    // 한 달 치 데이터만 가져오기
+    if (lastMonthOnly) {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      whereCondition.createdAt = MoreThanOrEqual(oneMonthAgo);
+    }
+    
     return this.attemptRepository.find({
-      where: { childId },
+      where: whereCondition,
       relations: ['quiz', 'quiz.chapter'],
       order: { createdAt: 'DESC' },
     });
