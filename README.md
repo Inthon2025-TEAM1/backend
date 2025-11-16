@@ -1,99 +1,445 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# InThon Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A NestJS-based backend API server for an educational platform that supports students, parents, and administrators.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 📋 Project Overview
 
-## Description
+This backend provides RESTful APIs for an educational platform with features including:
+- User authentication and authorization (Firebase-based)
+- Quiz management and tracking
+- Reward and candy transaction system
+- Payment processing
+- Mentoring application system
+- AI-powered learning analysis
+- Admin dashboard functionality
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Tech Stack
 
-## Project setup
+### Core Framework
+- **NestJS 10.0.0** - Progressive Node.js framework
+- **TypeScript 5.1.3** - Type-safe JavaScript
+- **Express** - HTTP server (via @nestjs/platform-express)
 
-```bash
-$ npm install
+### Database
+- **TypeORM 0.3.27** - Object-Relational Mapping
+- **MySQL2 3.15.3** - MySQL/MariaDB driver
+- **MariaDB/MySQL** - Relational database
+
+### Authentication & Security
+- **Firebase Admin SDK 13.6.0** - Server-side Firebase authentication
+- **class-validator 0.14.2** - DTO validation
+- **class-transformer 0.5.1** - Object transformation
+
+### Additional Libraries
+- **OpenAI 6.9.0** - AI-powered learning analysis
+- **date-fns 4.1.0** - Date utility library
+- **@nestjs/config 4.0.2** - Configuration management
+
+### Development Tools
+- **Jest 29.5.0** - Testing framework
+- **ESLint** - Code linting
+- **Prettier 3.0.0** - Code formatting
+- **Supertest 7.0.0** - HTTP assertion library
+
+## 📁 Project Structure
+
+```
+backend/
+├── src/
+│   ├── admin/              # Admin module
+│   │   ├── admin.controller.ts
+│   │   └── admin.module.ts
+│   ├── ai/                 # AI analysis module
+│   │   ├── ai.controller.ts
+│   │   ├── ai.service.ts
+│   │   ├── ai.entity.ts
+│   │   └── ai.module.ts
+│   ├── auth/               # Authentication module
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   ├── decorators/
+│   │   │   └── current-user.decorator.ts
+│   │   ├── dto/
+│   │   │   ├── create-user.req.dto.ts
+│   │   │   └── create-user.res.dto.ts
+│   │   ├── firebase/
+│   │   │   ├── firebase-auth.guard.ts
+│   │   │   └── firebase.module.ts
+│   │   ├── guards/
+│   │   │   └── subscription.guard.ts
+│   │   └── interceptor/
+│   │       └── auth.interceptor.ts
+│   ├── candy-transaction/  # Candy transaction module
+│   │   ├── candy-transaction.controller.ts
+│   │   ├── candy-transaction.service.ts
+│   │   ├── candy-transaction.entity.ts
+│   │   └── candy-transaction.module.ts
+│   ├── mentoring/          # Mentoring module
+│   │   ├── mentoring.controller.ts
+│   │   ├── mentoring.service.ts
+│   │   ├── mentoring.dto.ts
+│   │   ├── mentor.entity.ts
+│   │   ├── mentoring-request.entity.ts
+│   │   └── mentoring.module.ts
+│   ├── payment/            # Payment module
+│   │   ├── payment.controller.ts
+│   │   ├── payment.service.ts
+│   │   ├── payment.dto.ts
+│   │   ├── payment.entity.ts
+│   │   └── payment.module.ts
+│   ├── quiz/               # Quiz module
+│   │   ├── quiz.controller.ts
+│   │   ├── quiz.service.ts
+│   │   ├── quiz.dto.ts
+│   │   ├── quiz-question.entity.ts
+│   │   ├── quiz-attempt.entity.ts
+│   │   ├── chapter.entity.ts
+│   │   └── quiz.module.ts
+│   ├── reward/             # Reward module
+│   │   ├── reward.controller.ts
+│   │   ├── reward.service.ts
+│   │   ├── reward.entity.ts
+│   │   └── reward.module.ts
+│   ├── user/               # User module
+│   │   ├── user.controller.ts
+│   │   ├── user.service.ts
+│   │   ├── user.entity.ts
+│   │   └── user.module.ts
+│   ├── util/              # Utility functions
+│   │   └── candy.util.ts
+│   ├── types/              # Type definitions
+│   │   └── express.d.ts
+│   ├── app.module.ts       # Root module
+│   ├── app.controller.ts
+│   ├── app.service.ts
+│   └── main.ts             # Application entry point
+├── test/                   # E2E tests
+│   ├── app.e2e-spec.ts
+│   └── jest-e2e.json
+├── dist/                   # Compiled JavaScript (generated)
+├── package.json
+├── tsconfig.json
+├── tsconfig.build.json
+└── nest-cli.json
 ```
 
-## Compile and run the project
+## 🎯 Core Modules
+
+### Authentication (`auth`)
+- Firebase token verification
+- User registration and login
+- Role-based access control
+- Custom guards and interceptors
+
+### User Management (`user`)
+- User profile management
+- Role assignment (Student, Parent, Admin)
+- Candy balance management
+- Child account management (for parents)
+- Purchase history tracking
+- Reward history retrieval
+- User data retrieval
+
+### Quiz System (`quiz`)
+- Quiz question management
+- Chapter-based organization
+- Quiz attempt tracking
+- Chapter completion status
+- Unsolved questions tracking
+- Grade and subject filtering
+- Subscription-based access control
+
+### Rewards & Transactions (`reward`, `candy-transaction`)
+- Reward management
+- Candy spending functionality
+- Transaction tracking
+- Balance updates
+
+### Payment (`payment`)
+- Payment processing
+- Payment history
+- Subscription management
+
+### Mentoring (`mentoring`)
+- Mentoring request creation
+- Mentor management
+- Application status tracking
+
+### AI Analysis (`ai`)
+- Learning weakness analysis
+- AI-powered insights using OpenAI
+- Report generation
+
+### Admin (`admin`)
+- Quiz creation
+- User management
+- Payment approval
+- Mentoring request management
+- System administration
+
+## 🛠️ Installation & Setup
+
+### Prerequisites
+- Node.js 18 or higher
+- npm or yarn
+- MySQL/MariaDB database
+- Firebase Admin SDK credentials
+
+### Installation
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+# Install dependencies
+npm install
 ```
 
-## Run tests
+### Environment Variables
+
+Create a `.env` file in the backend root directory:
+
+```env
+# Server Configuration
+PORT=3000
+
+# Database Configuration
+MYSQL_HOST=localhost
+MYSQL_PORT=3306
+MYSQL_USERNAME=your_username
+MYSQL_PASSWORD=your_password
+MYSQL_DATABASE=your_database
+
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY=your_private_key
+FIREBASE_CLIENT_EMAIL=your_client_email
+
+# OpenAI (for AI analysis)
+OPENAI_API_KEY=your_openai_api_key
+```
+
+### Database Setup
+
+1. Create a MySQL/MariaDB database
+2. Update the `.env` file with your database credentials
+3. The application will automatically create tables on first run (synchronize: true in development)
+
+**⚠️ Warning**: Set `synchronize: false` in production and use migrations instead.
+
+### Running the Application
 
 ```bash
-# unit tests
-$ npm run test
+# Development mode (with hot reload)
+npm run start:dev
 
-# e2e tests
-$ npm run test:e2e
+# Production mode
+npm run start:prod
 
-# test coverage
-$ npm run test:cov
+# Debug mode
+npm run start:debug
+
+# Standard start
+npm run start
 ```
 
-## Deployment
+The server will run on `http://localhost:3000` (or the port specified in `.env`).
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 🧪 Testing
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+# Unit tests
+npm run test
+
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## 📝 Code Quality
 
-## Resources
+```bash
+# Lint code
+npm run lint
 
-Check out a few resources that may come in handy when working with NestJS:
+# Format code
+npm run format
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 🔧 Development Configuration
 
-## Support
+### CORS Configuration
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+The application is configured to accept requests from the frontend:
 
-## Stay in touch
+```typescript
+// main.ts
+app.enableCors({
+  origin: ['https://frontend-mu-gules-72.vercel.app/'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+});
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Database Configuration
 
-## License
+TypeORM is configured with the following settings:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```typescript
+TypeOrmModule.forRoot({
+  type: 'mysql',
+  host: process.env.MYSQL_HOST,
+  port: Number(process.env.MYSQL_PORT),
+  username: process.env.MYSQL_USERNAME,
+  password: process.env.MYSQL_PASSWORD,
+  database: process.env.MYSQL_DATABASE,
+  entities: [/* ... */],
+  synchronize: true, // false in production
+  charset: 'utf8mb4', // Emoji support
+})
+```
+
+## 📚 API Endpoints
+
+### Authentication
+- `POST /auth/register` - Register new user
+- `GET /auth/login` - Login (Firebase token required)
+
+### User Management
+- `GET /user/me` - Get current user info
+- `GET /user/role` - Get user role
+- `POST /user/set-role` - Set user role
+- `GET /user/candy` - Get candy balance
+- `POST /user/spend-candy` - Spend candy
+- `GET /user/purchase-history` - Get purchase history
+- `GET /user/rewards` - Get child rewards (optional month query)
+- `GET /user/children` - Get children (for parents)
+- `POST /user/children` - Add child
+- `DELETE /user/children/:childId` - Remove child
+- `GET /user/children-count` - Get children count
+- `GET /user/reward-candy-history` - Get reward candy history
+
+### Quiz
+- `GET /quiz` - Get quiz questions (requires subscription)
+- `GET /quiz/unsolved` - Get unsolved questions by chapter
+- `GET /quiz/chapters` - Get available chapters by grade level
+- `GET /quiz/status` - Get chapter completion status
+- `POST /quiz/submit` - Submit quiz attempt (requires subscription)
+- `GET /quiz/attempts` - Get quiz attempt history
+
+### Rewards & Candy
+- `GET /reward` - Get available rewards
+- `POST /candy/spend` - Spend candy on items
+
+### Payment
+- `POST /payment/create` - Create payment
+
+### Mentoring
+- `POST /mentoring/applications` - Create mentoring request
+- `GET /mentoring/applications` - Get mentoring requests
+- `GET /mentoring/applications/:id` - Get specific request
+- `DELETE /mentoring/applications/:id` - Cancel request
+- `PATCH /mentoring/applications/:id/status` - Update request status
+
+### AI Analysis
+- `GET /ai/analyze-weakness` - Analyze learning weaknesses
+
+### Admin
+- `POST /admin/create-quiz` - Create quiz
+- `POST /admin/increment-candy` - Increment user candy
+- `GET /admin/get-all-users` - Get all users
+- `GET /admin/get-all-quizzes` - Get all quiz attempts
+- `POST /admin/create-mentor-mockup` - Create mentor mockup
+- `PATCH /admin/:id/approve` - Approve payment
+- `GET /admin/pending-payments` - Get pending payments
+- `GET /admin/pending` - Get pending mentoring requests
+- `PATCH /admin/:id/status` - Update mentoring request status
+
+## 🔐 Authentication
+
+The API uses Firebase Authentication for securing endpoints:
+
+1. Client sends Firebase ID token in the `Authorization` header
+2. `FirebaseAuthGuard` verifies the token using Firebase Admin SDK
+3. `UserLoadInterceptor` loads user data from the database
+4. `@CurrentUserId()` and `@CurrentDbUser()` decorators provide user context
+
+### Example Request
+
+```bash
+curl -X GET http://localhost:3000/user/me \
+  -H "Authorization: Bearer <firebase_id_token>"
+```
+
+## 🏗️ Architecture Patterns
+
+### Module Structure
+- Each feature is organized as a NestJS module
+- Modules contain controllers, services, entities, and DTOs
+- Dependency injection for loose coupling
+
+### Guards
+- `FirebaseAuthGuard`: Verifies Firebase authentication
+- `SubscriptionGuard`: Checks user subscription status
+
+### Interceptors
+- `UserLoadInterceptor`: Automatically loads user data from database
+
+### Decorators
+- `@CurrentUserId()`: Get current user ID
+- `@CurrentDbUser()`: Get current user entity
+
+## 📦 Build
+
+```bash
+# Build for production
+npm run build
+
+# Output will be in dist/ directory
+```
+
+## 🚀 Deployment
+
+1. Set environment variables in your production environment
+2. Build the application: `npm run build`
+3. Run the production build: `npm run start:prod`
+4. Ensure database migrations are applied
+5. Set `synchronize: false` in production
+
+## 🔍 Database Entities
+
+- **User**: User accounts and profiles
+- **QuizQuestion**: Quiz questions
+- **QuizAttempt**: User quiz attempts
+- **Chapter**: Quiz chapters
+- **Payment**: Payment records
+- **MentoringRequest**: Mentoring applications
+- **Mentor**: Mentor information
+- **Reward**: Available rewards
+- **CandyTransaction**: Candy transaction history
+- **Report**: AI-generated learning reports
+
+## 🤝 Contributing
+
+When contributing to this project:
+
+1. Follow NestJS best practices
+2. Write unit tests for new features
+3. Use DTOs for request/response validation
+4. Follow the existing code structure
+5. Update documentation as needed
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+## NestJS Resources
+
+- [NestJS Documentation](https://docs.nestjs.com)
+- [TypeORM Documentation](https://typeorm.io)
+- [Firebase Admin SDK](https://firebase.google.com/docs/admin/setup)
