@@ -2,6 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import { QuizService } from '../quiz/quiz.service';
+import { Repository } from 'typeorm';
+import { Report } from './ai.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 // AI 서비스에 전송할 데이터 형태
 export interface WeaknessAnalysisRequest {
@@ -56,6 +59,8 @@ export class AiService {
   constructor(
     private readonly quizService: QuizService,
     private readonly configService: ConfigService,
+    @InjectRepository(Report)
+    private reportRepository: Repository<Report>,
   ) {
     // OpenAI 클라이언트 초기화
     const apiKey = this.configService.get<string>('OPENAI_API_KEY');
@@ -63,6 +68,27 @@ export class AiService {
       throw new Error('OPENAI_API_KEY가 설정되지 않았습니다.');
     }
     this.openai = new OpenAI({ apiKey });
+  }
+
+  async saveAnalysis(
+    userId: number,
+    analysisData: WeaknessAnalysisResponse,
+  ): Promise<Report> {
+    const report = this.reportRepository.create({
+      userId: userId,
+      overallScore: analysisData.overallScore,
+      recommendations: analysisData.recommendations,
+      improvementAreas: analysisData.improvementAreas,
+      weaknesses: analysisData.weaknesses,
+    });
+    return this.reportRepository.save(report);
+  }
+
+  async findLatestReport(userId: number): Promise<Report | null> {
+    return this.reportRepository.findOne({
+      where: { userId },
+      order: { createdAt: 'DESC' }, // 가장 최근 리포트 조회
+    });
   }
 
   /**
@@ -157,7 +183,11 @@ export class AiService {
    * AI 서비스에 약점 분석 요청 (OpenAI 직접 호출)
    */
   async analyzeWeakness(childId: number): Promise<WeaknessAnalysisResponse> {
-    // 1. 데이터 준비
+    const latestReport = await this.findLatestReport(childId);
+    if (latestReport) {
+      return latestReport as WeaknessAnalysisResponse;
+    }
+
     const analysisData = await this.prepareAnalysisData(childId);
 
     const attempts = analysisData.attempts;
@@ -196,8 +226,12 @@ export class AiService {
       const resultJson = JSON.parse(
         response.choices[0].message.content || '{}',
       );
-
-      return this.parseOpenAIResponse(resultJson, stats.accuracyRate);
+      const generatedAnalysis = this.parseOpenAIResponse(
+        resultJson,
+        stats.accuracyRate,
+      );
+      await this.saveAnalysis(childId, generatedAnalysis);
+      return generatedAnalysis;
     } catch (error) {
       // OpenAI API 호출 실패 시 기본 분석 결과 반환
       console.error('OpenAI API 호출 실패:', error);
